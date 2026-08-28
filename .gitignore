@@ -1,0 +1,14 @@
+*.o
+*.out
+*.exe
+build/
+core
+core.*
+*.log
+.env
+.env.*
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
