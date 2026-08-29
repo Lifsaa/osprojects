@@ -1,5 +1,8 @@
 #include "array_list.h"
 #include <stdio.h>
+#include <stdlib.h>
+
+#include <string.h>
 
 int main(int argc, char **argv)
 {
@@ -7,47 +10,44 @@ int main(int argc, char **argv)
         printf("Proper usage is: %s <count>  <beginning-/end\n", argv[0]);
         return 1;
     }
-    ArrayList *list = array_list_new(1);
+    char *endptr;
+    long count = strtol(argv[1], &endptr, 10);
 
-    if (list == NULL)
-        return 1;
-    
-    long count = strtol(argv[1], NULL, 10);
-    
-    if(count < 0) {
-        fprint(stderr, "Count must be nonnegative\n");
+    if (endptr ==  argv[1] || *endptr != '\0' || count < 0) {
+        fprintf(stderr, "Count has to be positive");
         return 1;
     }
+    int remove_beg = strcmp(argv[2], "beginning") == 0;
+    int remove_end = strcmp(argv[2], "end") == 0;
 
-    printf("count: %ld\n", count);
-    printf("removal node: %s\n", argv[2]);
-    char* mode = argv[2];
-    if (strcmp(mode,"beginning") == 0 &&
-        strcmp(mode, "end") != 0) {
-            return 1;
+    if (!remove_beg && !remove_end) {
+        fprintf(stderr, "Removal must be either at the beginnign or at the end");
+        return 1;
     }
 
     ArrayList* list = array_list_new(1);
 
-    if (list == NULL){
+    if (list == NULL) {
         return 1;
     }
-    
-    for(long i = 0; i < count; i++) {
-        array_list_add_to_end(list,i);
+
+    for (long value = 0; value < count; value++) {
+        if (!array_list_add_to_end(list,value)) {
+            array_list_free(list);
+            return 1;
+        }
     }
 
+    while (list->size) {
+        size_t index = remove_beg ? 0 : list->size -1;
+    
 
-
-
-
-    printf("size=%zu capacity=%zu values=%ld,%ld\n",
-           list->size,
-           list->capacity,
-           list->data[0],
-           list->data[1]);
-
+        if (!array_list_remove(list, index)) {
+            array_list_free(list);
+            return 1;
+        }
+    }
     array_list_free(list);
-
     return 0;
+
 }
